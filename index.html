@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rajeshwar Plastic Lead Collection</title>
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+    background:#f4f4f4;
+    padding:15px;
+}
+
+.container{
+    max-width:600px;
+    margin:auto;
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+h1{
+    text-align:center;
+    color:#007bff;
+}
+
+label{
+    font-weight:bold;
+    display:block;
+    margin-top:15px;
+}
+
+input, textarea, select{
+    width:100%;
+    padding:10px;
+    margin-top:5px;
+    border:1px solid #ccc;
+    border-radius:5px;
+    box-sizing:border-box;
+}
+
+.checkbox-group{
+    margin-top:10px;
+}
+
+.checkbox-group label{
+    font-weight:normal;
+    display:block;
+}
+
+button{
+    width:100%;
+    padding:15px;
+    margin-top:20px;
+    background:#28a745;
+    color:white;
+    border:none;
+    border-radius:8px;
+    font-size:18px;
+}
+
+button:hover{
+    background:#218838;
+}
+
+.lead-card{
+    background:white;
+    padding:15px;
+    margin-top:15px;
+    border-radius:10px;
+    box-shadow:0 0 5px rgba(0,0,0,0.1);
+}
+
+img{
+    width:100%;
+    margin-top:10px;
+    border-radius:8px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Rajeshwar Plastic Lead Form</h1>
+
+<label>Party Name</label>
+<input type="text" id="party">
+
+<label>Contact Person Name</label>
+<input type="text" id="person">
+
+<label>Mobile Number</label>
+<input type="tel" id="mobile">
+
+<label>Address</label>
+<textarea id="address"></textarea>
+
+<label>Business Type</label>
+<select id="businessType">
+    <option value="">Select</option>
+    <option>Manufacturer</option>
+    <option>Trader</option>
+</select>
+
+<label>Interested Products</label>
+
+<div class="checkbox-group">
+<label><input type="checkbox" value="LD Bags" class="product"> LD Bags</label>
+<label><input type="checkbox" value="PP Bags" class="product"> PP Bags</label>
+<label><input type="checkbox" value="Stretch Film" class="product"> Stretch Film</label>
+<label><input type="checkbox" value="Shrink Film" class="product"> Shrink Film</label>
+<label><input type="checkbox" value="Courier Bags" class="product"> Courier Bags</label>
+<label><input type="checkbox" value="Packing Material" class="product"> Packing Material</label>
+<label><input type="checkbox" value="Sutli" class="product"> Sutli</label>
+</div>
+
+<label>Approx Monthly Consumption</label>
+<input type="text" id="consumption">
+
+<label>Current Supplier Name</label>
+<input type="text" id="supplier">
+
+<label>Take Visiting Card Photo</label>
+<input type="file" id="cardImage" accept="image/*" capture="environment">
+
+<button onclick="saveLead()">Save Lead</button>
+
+<h2>Saved Leads</h2>
+
+<div id="savedLeads"></div>
+
+</div>
+
+<script>
+
+function saveLead(){
+
+    const products = [];
+    document.querySelectorAll('.product:checked').forEach(item=>{
+        products.push(item.value);
+    });
+
+    const reader = new FileReader();
+    const imageFile = document.getElementById('cardImage').files[0];
+
+    reader.onload = function(){
+
+        const lead = {
+            party: document.getElementById('party').value,
+            person: document.getElementById('person').value,
+            mobile: document.getElementById('mobile').value,
+            address: document.getElementById('address').value,
+            businessType: document.getElementById('businessType').value,
+            products: products.join(", "),
+            consumption: document.getElementById('consumption').value,
+            supplier: document.getElementById('supplier').value,
+            image: reader.result
+        };
+
+        let leads = JSON.parse(localStorage.getItem('leads')) || [];
+        leads.push(lead);
+
+        localStorage.setItem('leads', JSON.stringify(leads));
+
+        loadLeads();
+
+        document.querySelectorAll("input, textarea").forEach(e=>e.value="");
+        document.getElementById("businessType").selectedIndex=0;
+        document.querySelectorAll(".product").forEach(e=>e.checked=false);
+
+        alert("Lead Saved Successfully");
+    }
+
+    if(imageFile){
+        reader.readAsDataURL(imageFile);
+    }
+    else{
+        reader.onload();
+    }
+}
+
+function loadLeads(){
+
+    let leads = JSON.parse(localStorage.getItem('leads')) || [];
+
+    let output = "";
+
+    leads.forEach((lead,index)=>{
+
+        output += `
+        <div class="lead-card">
+            <h3>${lead.party}</h3>
+            <p><b>Person:</b> ${lead.person}</p>
+            <p><b>Mobile:</b> ${lead.mobile}</p>
+            <p><b>Address:</b> ${lead.address}</p>
+            <p><b>Business Type:</b> ${lead.businessType}</p>
+            <p><b>Products:</b> ${lead.products}</p>
+            <p><b>Monthly Consumption:</b> ${lead.consumption}</p>
+            <p><b>Current Supplier:</b> ${lead.supplier}</p>
+            ${lead.image ? `<img src="${lead.image}">` : ""}
+        </div>
+        `;
+    });
+
+    document.getElementById('savedLeads').innerHTML = output;
+}
+
+loadLeads();
+
+</script>
+
+</body>
+</html>
